@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="EmailBodyRequest" format="json">
+      <types:shape format="weave" example="examples/EmailBodyRequest.json"><![CDATA[%dw 2.0
+
+type EmailBodyRequest = {|
+  from: String, 
+  to: String, 
+  cc: String, 
+  cco: String, 
+  subject: String, 
+  customEMail: {|
+    bodyContent: String, 
+    contentType: String, 
+    enconding: String
+  |}, 
+  templateEMail: {|
+    message: String, 
+    detailMessage: String
+  |}, 
+  attachments: Array<{|    fileName: String,     content: String  |}>
+|} {"example": "{\\\"from\\\":\\\"from@domain.com\\\",\\\"to\\\":\\\"to@domain.com\\\",\\\"cc\\\":\\\"cc1@domain.com,cc2@domain.com,cc3@domain.com\\\",\\\"cco\\\":\\\"cco1@domain.com,cc2@domain.com,cc3@domain.com\\\",\\\"subject\\\":\\\"Asunto del correo\\\",\\\"customEMail\\\":{\\\"bodyContent\\\":\\\"Cuerpo del contenido\\\",\\\"contentType\\\":\\\"text\\/html\\\",\\\"enconding\\\":\\\"UTF-8\\\"},\\\"templateEMail\\\":{\\\"message\\\":\\\"Mensaje principal\\\",\\\"detailMessage\\\":\\\"Detalle del mensaje\\\"},\\\"attachments\\\":[{\\\"fileName\\\":\\\"file.json\\\",\\\"content\\\":\\\"{ \\\\\\\"key\\\\\\\": \\\\\\\"value\\\\\\\"}\\\"}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#29d1eaa7-0ce4-4e80-9a2e-d95dfa4eaae0">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#38a7da60-c1e6-460d-b7e0-130e4ce43f73">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#981f5a94-acd9-46ba-aec4-a4d786558600">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#9e2abf46-d6fb-4930-9cf4-b23054acbfb5">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+    <types:operation-declaration>
+      <types:inputs>
+        <types:parameter name="value" type="EmailBodyRequest"/>
+      </types:inputs>
+    </types:operation-declaration>
+  </types:enrichment>
+  <types:enrichment select="#607785eb-dca7-4cd8-8262-a6e4f09c7f1a">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ce5b94f3-0b6a-4a38-9575-51d3c7634468">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#eb8942b8-ca27-4fd0-91d5-9de6e94de803">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#2f11c660-0f5f-484d-af47-af83927c8c3b">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmailBodyRequest"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

@@ -1,0 +1,8 @@
+smtp:
+  host: relay01.ferromex.com.mx
+  port: '25'
+  user: USUARIOFXE
+httpListener:
+  host: '0.0.0.0'
+  port: '8081'
+  idleTimeout: '30000'

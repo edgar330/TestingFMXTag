@@ -1,0 +1,22 @@
+{
+  "from": "from@domain.com",
+  "to": "to@domain.com",
+  "cc": "cc1@domain.com,cc2@domain.com,cc3@domain.com",
+  "cco": "cco1@domain.com,cc2@domain.com,cc3@domain.com",
+  "subject": "Asunto del correo",
+  "customEMail": {
+    "bodyContent": "Cuerpo del contenido",
+    "contentType": "text/html",
+    "enconding": "UTF-8"
+  },
+  "templateEMail": {
+    "message": "Mensaje principal",
+    "detailMessage": "Detalle del mensaje"
+  },
+  "attachments": [
+    {
+      "fileName": "file.json",
+      "content": "{ \"key\": \"value\"}"
+    }
+  ]
+}

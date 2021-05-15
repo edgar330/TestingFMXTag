@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="f2d10b84-2a42-4bb5-9631-1086b0fdbdea" >
+		<email:smtp-connection host="${smtp.host}" user="${smtp.user}" password="${secure::smtp.password}" port="${smtp.port}"/>
+	</email:smtp-config>
+	<global-property doc:name="Global Property" doc:id="392ffdee-abd9-453c-a4a7-b10feacc4c14" name="mule.env" value="local" />
+	<global-property doc:name="Global Property" doc:id="b31aa072-b957-419d-8614-e4e1847e2e12" name="mule.key" value="FERROMEXMULESOFT" />
+	<configuration-properties doc:name="Configuration properties" doc:id="ab25fbd7-94f2-472e-aa69-04b465995c18" file="config/properties/config-${mule.env}.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="ab650c19-2a61-434f-a889-52b7ecbcc7d7" file="config\properties\config-secured-${mule.env}.yaml" key="${mule.key}">
+	</secure-properties:config>
+	<flow name="email-api-implementation" doc:id="21ee9399-b6c8-4725-95bd-3f0e1ab351dc" >
+		<logger level="INFO" doc:name="Logger" doc:id="c9efae3a-7080-41b2-8045-93f2301ae79c" message="#[payload]"/>
+		<choice doc:name="Choice" doc:id="ea91c401-afa3-4302-9bbd-d2863919de8a" >
+			<when expression="#[payload.customEMail == null and payload.templateEMail != null]" doc:id="eb8942b8-ca27-4fd0-91d5-9de6e94de803">
+				<flow-ref doc:name="Get Template" doc:id="0ffb2a33-db2b-4be3-a9ed-2af3ca63fba5" name="email-api-templateFlow"/>
+				<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;vars.bodyContent replace "&lt;&lt;MESSAGE&gt;&gt;" with payload.templateEMail.message]' doc:name="Set Message" doc:id="607785eb-dca7-4cd8-8262-a6e4f09c7f1a" variableName="bodyContent"/>
+				<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;vars.bodyContent replace "&lt;&lt;MESSAGE_DETAIL&gt;&gt;" with payload.templateEMail.detailMessage]' doc:name="Set MessageDetail" doc:id="ce5b94f3-0b6a-4a38-9575-51d3c7634468" variableName="bodyContent"/>
+				<email:send doc:name="SendTemplateTMS" doc:id="2f11c660-0f5f-484d-af47-af83927c8c3b" fromAddress="#[payload.from]" subject="#[payload.subject]" toAddresses='#[payload.to splitBy(";")]' ccAddresses='#[if(payload.cc == null or payload.cc == "") [] else payload.cc splitBy(";")]' bccAddresses='#[if(payload.cco == null or payload.cco == "") [] else payload.cco splitBy(";")]' config-ref="Email_SMTP">
+					<email:body contentType="text/html" encoding="UTF-8">
+						<email:content ><![CDATA[#[output application/java
+---
+vars.bodyContent]]]></email:content>
+					</email:body>
+					<email:attachments ><![CDATA[#[output application/java
+---
+if(sizeOf(payload.attachments) >= 5)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content,
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content,
+	'$(payload.attachments[3].fileName)': payload.attachments[3].content,
+	'$(payload.attachments[4].fileName)': payload.attachments[4].content
+}
+else if(sizeOf(payload.attachments) == 4)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content,
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content,
+	'$(payload.attachments[3].fileName)': payload.attachments[3].content
+}
+else if(sizeOf(payload.attachments) == 3)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content, 
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content
+}
+else if(sizeOf(payload.attachments) == 2)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content 
+}
+else if(sizeOf(payload.attachments) == 1)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+}
+else
+{}]]]></email:attachments>
+				</email:send>
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  code: "01",&#10;  message: "Successful"&#10;}]' doc:name="Set Payload" doc:id="0277c677-d230-4c06-a3e6-c4d57213b576" />
+			</when>
+			<when expression="#[payload.customEMail != null and payload.templateEMail == null]">
+				<email:send doc:name="SendCustom" doc:id="29d1eaa7-0ce4-4e80-9a2e-d95dfa4eaae0" toAddresses='#[payload.to splitBy(";")]' fromAddress='#[payload.from]' subject='#[payload.subject]' ccAddresses='#[if(payload.cc == null or payload.cc == "") [] else payload.cc splitBy(";")]' bccAddresses='#[if(payload.cco == null or payload.cco == "") [] else payload.cco splitBy(";")]' config-ref="Email_SMTP">
+					<email:body contentType="#[payload.customEMail.contentType]" encoding='#[payload.customEMail.enconding default "UTF-8"]'>
+						<email:content><![CDATA[#[output application/java
+---
+payload.customEMail.bodyContent]]]></email:content>
+					</email:body>
+					<email:attachments><![CDATA[#[output application/java
+---
+if(sizeOf(payload.attachments) >= 5)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content,
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content,
+	'$(payload.attachments[3].fileName)': payload.attachments[3].content,
+	'$(payload.attachments[4].fileName)': payload.attachments[4].content
+}
+else if(sizeOf(payload.attachments) == 4)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content,
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content,
+	'$(payload.attachments[3].fileName)': payload.attachments[3].content
+}
+else if(sizeOf(payload.attachments) == 3)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content, 
+	'$(payload.attachments[2].fileName)': payload.attachments[2].content
+}
+else if(sizeOf(payload.attachments) == 2)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+	'$(payload.attachments[1].fileName)': payload.attachments[1].content 
+}
+else if(sizeOf(payload.attachments) == 1)
+{
+	'$(payload.attachments[0].fileName)': payload.attachments[0].content,
+}
+else
+{}]]]></email:attachments>
+				</email:send>
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  code: "01",&#10;  message: "Successful"&#10;}]' doc:name="Set Payload" doc:id="17f1bbd0-a282-411f-8570-c4ad44866271" />
+			</when>
+			<when expression="payload.customEMail == null and payload.templateEMail == null" >
+				<set-variable value="400" doc:name="Set Variable" doc:id="119992a4-5730-41c0-8f88-9b7373aac377" variableName="httpStatus" />
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  code: "-01",&#10;  message: "No se encuentra tag customEMail o templateEMail en la petición"&#10;}]' doc:name="Set Payload" doc:id="e476bbb9-7a9c-40c1-a8bd-c6ff994cde68" />
+			</when>
+			<otherwise>
+				<set-variable value="400" doc:name="Set Variable" doc:id="b52d2083-47d7-4ef9-8210-72c04330efca" variableName="httpStatus"/>
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  code: "-01",&#10;  message: "No soporta customEMail y templateEMail en la misma petición (Remover un tag)"&#10;}]' doc:name="Set Payload" doc:id="45c74014-2e01-4d70-8620-3e509fb7b55f" />
+			</otherwise>
+		</choice>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4fe1a41c-d911-4248-b08e-3a3cf95beea3" >
+				<set-payload value='#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;  code: "-01",&#10;  message: "Internal server error"&#10;}]' doc:name="Set Payload" doc:id="47205356-add0-4776-b8d1-6f8dd0e13753" />
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
